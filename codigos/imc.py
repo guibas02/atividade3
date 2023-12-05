@@ -1,6 +1,11 @@
+# -*- coding utf-8 -*-
+import sqlite3
 import PySimpleGUI as sg
 
 sg.theme('DarkAmber')
+
+con = sqlite3.connect('bancoImc.db')
+cur = con.cursor()
 
 def calcular_imc(peso, altura):
     imc = peso / (altura * altura)
@@ -51,7 +56,15 @@ while True:
         peso = float(values['peso'])
 
         imc, categoria = calcular_imc(peso, altura)
-        resultado = f'Nome: {nome}\nEndereço: {endereco}\nIMC: {imc:.2f}\nResultado: {categoria}'
+        resultado = f'Resultado: {categoria}'
+
+        cur.execute('''
+        INSERT INTO pacientes (nome, endereco, altura, peso, resultado)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (nome, endereco, altura, peso, resultado))
+
+        con.commit()
+
         window['resultado'].update(resultado)
 
 window.close()
